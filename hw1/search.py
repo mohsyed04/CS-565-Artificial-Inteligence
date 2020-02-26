@@ -73,20 +73,24 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 
-def getPath(self,target, parent):
-    self.stack = []
-    self.path = []
-    self.current_item = target
-    while (self.current_item != None):#get the path
-        self.stack.append(self.current_item)
-        self.current_item = parent[self.current_item]
+def getPath(target, parent, actions,startState):
+    stack = []
+    path = []
+    current_state = target #target is a state tuple
+    while (current_state != startState):#get the path
+        stack.append(actions[current_state])
+        print("appended")
+        print(actions[current_state])
+        current_state = parent[current_state]
+        print("changed state")
+        print(current_state) 
 
-    while (len(self.stack) > 0): #reverse the path to get in right order
-        self.action = self.stack.pop()
-        self.path.append(self.action)
+    while (len(stack) > 0): #reverse the path to get in right order
+        action = stack.pop()
+        path.append(action)
     for i in path:
         print(i)
-    return self.path
+    return path
 
 def depthFirstSearch(problem):
     """
@@ -103,6 +107,7 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
+    stack=util.Stack()
     path = []
     start_state = (problem.getStartState(), [],0) #get start state
 
@@ -112,6 +117,7 @@ def depthFirstSearch(problem):
 
     visited = []       
     parent = {}
+    actions = {}
     stack.push(start_state)
     
     
@@ -122,29 +128,30 @@ def depthFirstSearch(problem):
         #print(len(item))
 
         if item[0] not in visited:
-            if problem.isGoalState(item) == True: #if its a goal state, add to the solution and return
+            if problem.isGoalState(item[0]): #if its a goal state, add to the solution and return
                 ##call a function to reverse the path and create a list
-                path = getPath(item[0],parent)
+                print("Goal state:", item[0])
+                print("Start state:", start_state)
+                path = getPath(item[0],parent,actions,start_state[0])
+                print("returning from 1")
                 return path
 
             visited.append(item[0]) #else append it to the visited list and
-            print("visited node:")
-            print(item[0])
+
             successors = problem.getSuccessors(item[0]) #push its successors onto the stack
             for scr in successors:
                 if scr[0] not in visited:
                     stack.push((scr[0],scr[1],scr[2]))
-                    #print("pushed successor with length:")
-                    #print(len(scr))
-
-                    parent[scr[0]] = scr[1]
-
-    return []
+                    parent[scr[0]] = item[0] #scr(0) is the state and scr(1) is the action it took to get to state scr[0]
+                    print(scr[0],scr[1])
+                    actions[scr[0]] = scr[1]
 
 
-        
-
-   # util.raiseNotDefined()
+    print("returning from 2")
+    '''for key,value in parent:
+        print(key, value)'''
+    return path
+    util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
