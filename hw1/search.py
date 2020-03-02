@@ -140,12 +140,7 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
-def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    stack = util.PriorityQueue()
+    queue=util.Queue()
     path = []
     start_state = (problem.getStartState(), [],0) #get start state and add empty action and cost to get to the start state before pushing on stack
 
@@ -156,12 +151,12 @@ def uniformCostSearch(problem):
     visited = []    #list to hold visited states
     parent = {}     #to save the (state: parent state/node) pairs
     actions = {}    #to save the (state: action to get there)  pairs
-    stack.push((start_state),start_state[2]) #each stack item is of format (state,action to get to the state, cost to get to the state )
+    queue.push(start_state) #each queue item is of format (state,action to get to the state, cost to get to the state )
     
     
-    while(stack.isEmpty() == False): #loop until stack is empty
+    while(queue.isEmpty() == False): #loop until queue is empty
         
-        item = stack.pop() # pop an item from the stack
+        item = queue.pop() # pop an item from the queue
 
         if item[0] not in visited: #check the visited list before processing, if visited, ignore the state. item[0] means state of the item
             if problem.isGoalState(item[0]): #if its a goal state, add to the solution and return
@@ -170,11 +165,56 @@ def uniformCostSearch(problem):
 
             visited.append(item[0]) #else append it to the visited list and do:
 
-            successors = problem.getSuccessors(item[0]) #push all the of its successors onto the stack
+            successors = problem.getSuccessors(item[0]) #push all the of its successors onto the queue
             for scr in successors: #for each successor of the current state
-                if scr[0] not in visited: #check if the current successor is already visited, if not, do:
-                    stack.push((scr[0],scr[1],scr[2]),scr[2]) #push the successor in the same stack item format of (state,action,cost)
+                if scr[0] not in visited and scr[0] not in parent: #check if the current successor is already visited, if not, do:
+                    queue.push((scr[0],scr[1],scr[2])) #push the successor in the same queue item format of (state,action,cost)
                     #scr(0) is the state and scr(1) is the action required to get to state scr[0]
+                    parent[scr[0]] = item[0] # save the parent state (item[0]) of the current state/successor [scr[0]] in the parent dictionary 
+                    actions[scr[0]] = scr[1] #save the action required (scr[1]) to get to the current state/successor  (scr[0])
+
+    return path #if goal is not found return an empty list
+    util.raiseNotDefined()
+
+def uniformCostSearch(problem):
+    """Search the node of least total cost first."""
+    "*** YOUR CODE HERE ***"
+    pQueue = util.PriorityQueue()
+    path = []
+    start_state = (problem.getStartState(), [],0) #get start state and add empty action and cost to get to the start state before pushing on stack
+
+    if problem.isGoalState(start_state[0]): #if the start state is a goal state, return an empty list of actions
+        print("goal reached")
+        return path
+
+    visited = []    #list to hold visited states
+    parent = {}     #to save the (state: parent state/node) pairs
+    actions = {}    #to save the (state: action to get there)  pairs
+    pQueue.push((start_state),start_state[2]) #each stack item is of format (state,action to get to the state, cost to get to the state )
+    
+    
+    while(pQueue.isEmpty() == False): #loop until stack is empty
+        
+        item = pQueue.pop() # pop an item from the stack
+
+        if item[0] not in visited: #check the visited list before processing, if visited, ignore the state. item[0] means state of the item
+            if problem.isGoalState(item[0]): #if its a goal state, add to the solution and return
+                path = getPath(item[0],parent,actions,start_state[0]) ##call a function to create a path in reverse order and return the path list in correct order
+                return path 
+
+            visited.append((item[0],start_state[2])) #else append it to the visited list and do:
+ 	    
+	    successors = problem.getSuccessors(item[0]) #push all the of its successors onto the stack
+            for scr in successors: #for each successor of the current state
+		visitbool=False
+		cost=scr[2]+item[2]
+		for (visitedState,visitedCost) in visited:
+			if (scr[0] == visitedState) and (cost >= visitedCost):
+				visitbool=True
+                if not visitbool: #check if the current successor is already visited, if not, do:
+                    pQueue.push((scr[0],start_state[1]+[scr[1]],cost),(cost)) #push the successor in the same stack item format of (state,action,cost)
+                    #scr(0) is the state and scr(1) is the action required to get to state scr[0]
+		    visited.append((scr[0],item[2] + scr[2]))
                     parent[scr[0]] = item[0] # save the parent state (item[0]) of the current state/successor [scr[0]] in the parent dictionary 
                     actions[scr[0]] = scr[1] #save the action reuired (scr[1]) to get to the current state/successor  (scr[0])
 
@@ -193,6 +233,46 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    pQueue = util.PriorityQueue()
+    path = []
+    start_state = (problem.getStartState(), [],0) #get start state and add empty action and cost to get to the start state before pushing on stack
+
+    if problem.isGoalState(start_state[0]): #if the start state is a goal state, return an empty list of actions
+        print("goal reached")
+        return path
+
+    visited = []    #list to hold visited states
+    parent = {}     #to save the (state: parent state/node) pairs
+    actions = {}    #to save the (state: action to get there)  pairs
+    pQueue.push((start_state),start_state[2]+heuristic(problem.getStartState(),problem)) #each stack item is of format (state,action to get to the state, cost to get to the state )
+    
+    
+    while(pQueue.isEmpty() == False): #loop until stack is empty
+        
+        item = pQueue.pop() # pop an item from the stack
+
+        if item[0] not in visited: #check the visited list before processing, if visited, ignore the state. item[0] means state of the item
+            if problem.isGoalState(item[0]): #if its a goal state, add to the solution and return
+                path = getPath(item[0],parent,actions,start_state[0]) ##call a function to create a path in reverse order and return the path list in correct order
+                return path 
+
+            visited.append((item[0],start_state[2]+heuristic(problem.getStartState(),problem))) #else append it to the visited list and do:
+ 	    
+	    successors = problem.getSuccessors(item[0]) #push all the of its successors onto the stack
+            for scr in successors: #for each successor of the current state
+		visitbool=False
+		cost=scr[2]+item[2]
+		for (visitedState,visitedCost) in visited:
+			if (scr[0] == visitedState) and (cost >= visitedCost):
+				visitbool=True
+                if not visitbool: #check if the current successor is already visited, if not, do:
+                    pQueue.push((scr[0],start_state[1]+[scr[1]],cost),(cost+heuristic(scr[0],problem))) #push the successor in the same stack item format of (state,action,cost)
+                    #scr(0) is the state and scr(1) is the action required to get to state scr[0]
+		    visited.append((scr[0],item[2] + scr[2]))
+                    parent[scr[0]] = item[0] # save the parent state (item[0]) of the current state/successor [scr[0]] in the parent dictionary 
+                    actions[scr[0]] = scr[1] #save the action reuired (scr[1]) to get to the current state/successor  (scr[0])
+
+    return path #if goal is not found return an empty list
     util.raiseNotDefined()
 
 
