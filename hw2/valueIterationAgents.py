@@ -46,23 +46,25 @@ class ValueIterationAgent(ValueEstimationAgent):
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
         import copy
+
         for itr in range (iterations):
-            val = self.values.copy() #FIXME 
+            previous_values = copy.deepcopy(self.values) #save previous state values to refer for the iteration
+
             for state in mdp.getStates():
                 max_value = -100
+
                 for action in mdp.getPossibleActions(state): #this also handles states with no actions
                     value_s = 0
-                    for next_state,prob in mdp.getTransitionStatesAndProbs(state, action): 
-                        reward = mdp.getReward(state,action,next_state)
-                        value_sPrime = self.values[next_state]
 
-                        value_s += prob * (reward + discount*value_sPrime)
-                    
+                    for next_state,prob in mdp.getTransitionStatesAndProbs(state, action): 
+                        reward = mdp.getReward(state,action,next_state) #r(s,a,s')
+                        value_sPrime = previous_values[next_state]  # V(s')
+                        value_s += prob * (reward + discount*value_sPrime) #the value iteration equation
+
                     if max_value < value_s:
                         max_value = value_s 
 
-                    val[state] = max_value; #FIXME
-            self.values = val #FIXME
+                    self.values[state] = max_value; #update the value for each state with the max value
 
 
     def getValue(self, state):
