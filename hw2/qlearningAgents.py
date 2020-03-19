@@ -112,7 +112,7 @@ class QLearningAgent(ReinforcementAgent):
         action = None
         "*** YOUR CODE HERE ***"
 
-        if util.flipCoin(self.epsilon) == True:
+        if util.flipCoin(self.epsilon):
           action = random.choice(legalActions)
         else:
           action = self.computeActionFromQValues(state)
@@ -132,8 +132,8 @@ class QLearningAgent(ReinforcementAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        max_next_state = self.computeValueFromQValues(nextState)
-        Q_sa = self.getQValue(state,action)
+        max_next_state = self.computeValueFromQValues(nextState) # max(s',a')
+        Q_sa = self.getQValue(state,action) # Q(s,a)
 
         self.Q_values[state,action] = ((1-self.alpha) * Q_sa ) + (self.alpha * (reward + (self.discount*max_next_state)))
 
