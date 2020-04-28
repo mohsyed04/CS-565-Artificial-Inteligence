@@ -162,7 +162,6 @@ class ExactInference(InferenceModule):
                 allPossible[p] = self.beliefs[p] * emissionModel[trueDistance] # P(xt|e1:t) = P(xt|e1:t-1) * P(et|xt)
 
         if noisyDistance is None:
-            #allPossible = util.Counter()
             allPossible[self.getJailPosition()] = True
 
        
